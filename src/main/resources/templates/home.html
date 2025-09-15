@@ -1,19 +1,57 @@
 <!DOCTYPE html>
 <html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <title>ホーム</title>
 </head>
 <body>
-    <h3 th:text="${username}">さん、こんにちは!</h3>
-    <div sec:authorize="hasRole('ADMIN')">
-        <a th:href="@{/admin}">管理者用ページへ</a>
-    </div>
-    <div sec:authorize="hasRole('USER')">
-
-    </div>
+<div>
+    <h3 th:text="${username} + 'さん、こんにちは!'"></h3>
+    <a th:href="@{/articles/new}">新規記事投稿</a>
     <a th:href="@{/logout}">ログアウト</a>
+</div>
+
+<div sec:authorize="hasRole('ADMIN')" style="margin-top: 10px;">
+    <a th:href="@{/admin}">管理者用ページへ</a>
+</div>
+
+<hr style="margin: 20px 0;">
+
+<div>
+    <h2>記事一覧</h2>
+
+    <div th:if="${articles.isEmpty()}">
+        <p>まだ記事が投稿されていません</p>
+    </div>
+
+    <table border="1" th:unless="${articles.isEmpty()}">
+        <thead>
+        <tr>
+            <th style="padding: 5px;">タイトル</th>
+            <th style="padding: 5px;">投稿者</th>
+            <th style="padding: 5px;">投稿日時</th>
+            <th style="padding: 5px;">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="article: ${articles}">
+            <td style="padding: 5px;" th:text="${article.title}"></td>
+            <td style="padding: 5px;" th:text="${article.user.name}"></td>
+            <td style="padding: 5px;" th:text="${#temporals.format(article.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
+            <td style="padding: 5px;">
+                <a th:href="@{/articles/{id}(id=${article.id})}">詳細</a>
+                <span th:if="${#authentication.name == article.user.name or #authorization.expression('hasRole(''ADMIN'')')}">
+                        | <a th:href="@{/articles/edit/{id}(id=${article.id})}">編集</a>
+                        | <a th:href="@{/articles/delete/{id}(id=${article.id})}">削除</a>
+                    </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
 </body>
 </html>
+
