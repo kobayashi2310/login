@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者用ページ</title>
+</head>
+<body>
+<h1>管理者用ページ</h1>
+<div th:if="message">
+    <p th:text="${message}" style="color: blue"></p>
+</div>
+<table>
+    <thead>
+        <tr>
+            <th scope="row">ID</th>
+            <th scope="row">氏名</th>
+            <th scope="row">ロール</th>
+        </tr>
+    </thead>
+    <tbody th:each="user: ${users}">
+        <tr>
+            <th th:text="${user.id}" scope="col"></th>
+            <td th:text="${user.name}"></td>
+            <td th:text="${user.role}"></td>
+            <td>
+                <form th:action="@{/admin/delete/{id}(id=${user.id})}" method="post">
+                    <button type="submit" onclick="return confirm('ユーザを削除しますか?')">削除</button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<a th:href="@{/home}">戻る</a>
+</body>
+</html>

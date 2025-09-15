@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>ホーム</title>
+</head>
+<body>
+    <h3 th:text="${username}">さん、こんにちは!</h3>
+    <div sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/admin}">管理者用ページへ</a>
+    </div>
+    <div sec:authorize="hasRole('USER')">
+
+    </div>
+    <a th:href="@{/logout}">ログアウト</a>
+</body>
+</html>
