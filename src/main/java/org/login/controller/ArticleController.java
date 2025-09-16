@@ -1,16 +1,18 @@
 package org.login.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.login.model.Article;
+import org.login.model.Comment;
 import org.login.model.dto.form.ArticleFormDTO;
+import org.login.model.dto.form.CommentFormDTO;
 import org.login.service.ArticleService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/articles")
@@ -18,6 +20,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ArticleController {
 
     private final ArticleService articleService;
+
+    @GetMapping("{id}")
+    public String showArticle(
+            @PathVariable("id") Long id,
+            Model model)
+    {
+
+        Article article = articleService.findById(id);
+
+        List<Comment> comments =
+                articleService.findByArticleIdOrderByCreatedAtDesc(id);
+
+        model.addAttribute("article", article);
+        model.addAttribute("comments", comments);
+        model.addAttribute("commentForm", new CommentFormDTO());
+
+        return "articles/show";
+    }
 
     @GetMapping("/new")
     public String newArticleForm(Model model) {

@@ -2,9 +2,11 @@ package org.login.service;
 
 import lombok.RequiredArgsConstructor;
 import org.login.model.Article;
+import org.login.model.Comment;
 import org.login.model.User;
 import org.login.model.dto.form.ArticleFormDTO;
 import org.login.repository.ArticleRepository;
+import org.login.repository.CommentRepository;
 import org.login.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,9 +20,19 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     public List<Article> findByAll() {
         return articleRepository.findAll();
+    }
+
+    public Article findById(Long id) {
+        return articleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Article Not Found:" + id));
+    }
+
+    public List<Comment> findByArticleIdOrderByCreatedAtDesc(Long articleId) {
+        return commentRepository.findByArticleIdOrderByCreatedAtDesc(articleId);
     }
 
     public void createArticle(ArticleFormDTO articleForm) throws RuntimeException {
