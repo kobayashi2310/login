@@ -15,15 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -79,23 +78,40 @@ public class ArticleService {
     }
 
     private String storeImage(MultipartFile imageFile) throws IOException {
-        String originalFilename = imageFile.getOriginalFilename();
-        if (originalFilename == null) {
-            throw new IllegalArgumentException("Image File is Empty");
+
+        String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(imageFile.getOriginalFilename()));
+
+        if (originalFilename.contains("..")) {
+            throw new IOException("ファイル名に不正なパスシーケンスが含まれています: " + originalFilename);
         }
 
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String storedFilename = UUID.randomUUID() + extension;
+        if (originalFilename.isBlank()) {
+            throw new IOException("ファイル名がありません。");
+        }
 
-        Path destinationFile = Paths.get(uploadDir).resolve(storedFilename).toAbsolutePath();
+
+        String extension = "";
+        int i = originalFilename.lastIndexOf('.');
+        if (i > 0) {
+            extension = originalFilename.substring(i);
+        }
+
+        String storedFileName = UUID.randomUUID() + extension;
+
+        Path destinationFile = Paths.get(uploadDir).resolve(storedFileName).toAbsolutePath();
+
+        if (!destinationFile.getParent().equals(Paths.get(uploadDir).toAbsolutePath())) {
+            throw new IOException("最終的な保存先がアップロードディレクトリの外になっています。");
+        }
 
         Files.createDirectories(destinationFile.getParent());
 
-        try(InputStream inputStream = imageFile.getInputStream()) {
+        try (InputStream inputStream = imageFile.getInputStream()) {
             Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        return storedFilename;
+        return storedFileName;
+
     }
 
     public CommentDto createComment(
@@ -128,6 +144,42 @@ public class ArticleService {
                 .stream()
                 .map(CommentDto::fromEntity)
                 .toList();
+    }
+
+    public void updateArticle(
+            Article article,
+            ArticleFormDTO articleForm,
+            MultipartFile imageFile
+    ) {
+        article.setTitle(articleForm.getTitle());
+        article.setContent(articleForm.getContent());
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                if (article.getImagePath() != null && !article.getImagePath().isEmpty()) {
+                    deleteImage(article.getImagePath());
+                }
+
+                String fileName = storeImage(imageFile);
+                article.setImagePath(fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Image File IO Error");
+            }
+        }
+
+        articleRepository.save(article);
+    }
+
+    private void deleteImage(String fileName) throws IOException{
+        if (fileName == null || fileName.isEmpty()) {
+            return;
+        }
+        try {
+            Path fileToDelete = Paths.get(uploadDir).resolve(fileName).toAbsolutePath();
+            Files.delete(fileToDelete);
+        } catch (NoSuchFileException e) {
+            System.err.println("削除対象のファイルが見つかりません: " + fileName);
+        }
     }
 
 }

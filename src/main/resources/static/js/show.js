@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}/${month}/${day} ${hours}:${minutes}`;
     };
 
-    const escapeHTML = (str) => {
+    const escapeHTML = str => {
         return str.replace(/[&<>"']/g, function(match) {
             return {
                 '&': '&amp;',
