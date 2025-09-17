@@ -14,6 +14,7 @@ import org.login.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -180,6 +181,27 @@ public class ArticleService {
         } catch (NoSuchFileException e) {
             System.err.println("削除対象のファイルが見つかりません: " + fileName);
         }
+    }
+
+    public void deleteArticle(Long id, UserDetails userDetails) {
+        Article article = findById(id);
+
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!article.getUser().getName().equals(userDetails.getUsername()) && !isAdmin) {
+            throw new RuntimeException("この記事を削除する権限はありません");
+        }
+
+        if (article.getImagePath() != null && !article.getImagePath().isEmpty()) {
+            try {
+                deleteImage(article.getImagePath());
+            } catch (IOException e) {
+                System.err.println("画像ファイルの削除に失敗しました: " + article.getImagePath());
+            }
+        }
+
+        articleRepository.deleteById(id);
     }
 
 }

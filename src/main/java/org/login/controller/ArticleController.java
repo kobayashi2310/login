@@ -110,4 +110,20 @@ public class ArticleController {
         return "redirect:/articles/{id}";
     }
 
+    @PostMapping("/delete/{id}")
+    public String deleteArticle(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            articleService.deleteArticle(id, userDetails);
+            redirectAttributes.addFlashAttribute("successMessage", "記事を削除しました");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "記事の削除に失敗しました。");
+            return "redirect:/articles/" + id;
+        }
+        return "redirect:/home";
+    }
+
 }

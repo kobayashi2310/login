@@ -23,6 +23,17 @@
     <div th:utext="${#strings.replace(article.content, '\n', '<br />')}"></div>
     <hr>
     <a th:href="@{/home}">記事一覧へ戻る</a>
+
+    <div th:if="${#authentication.name == article.user.name or #authorization.expression('hasRole(''ADMIN'')')}" style="margin-left: 1em;">
+        | <a th:href="@{/articles/edit/{id}(id=${article.id})}">編集</a>
+
+        |
+        <form th:action="@{/articles/delete/{id}(id=${article.id})}" method="post" style="display: inline;"
+              onsubmit="return confirm('本当にこの記事を削除しますか？');">
+            <button type="submit" style="background: none; border: none; color: #007bff; cursor: pointer; padding: 0; text-decoration: underline;">削除</button>
+        </form>
+    </div>
+
 </main>
 
 <section>

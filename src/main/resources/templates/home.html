@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"> <!-- Boot 3.x系を想定 -->
 <head>
     <meta charset="UTF-8">
     <title>ホーム</title>
@@ -13,44 +13,65 @@
     <a th:href="@{/logout}">ログアウト</a>
 </div>
 
-<div sec:authorize="hasRole('ADMIN')" style="margin-top: 10px;">
+<div sec:authorize="hasRole('ADMIN')">
     <a th:href="@{/admin}">管理者用ページへ</a>
 </div>
 
-<hr style="margin: 20px 0;">
+<!-- メッセージ表示エリア -->
+<div th:if="${successMessage}" style="color: green;" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}" style="color: red;" th:text="${errorMessage}"></div>
+
 
 <div>
     <h2>記事一覧</h2>
+    <div id="sort-controls" style="margin-bottom: 1em;">
+        <strong>並び替え:</strong>
+        <label style="cursor: pointer;">
+            <input type="radio" name="sortOrder" value="desc" checked> 新しい順
+        </label>
+        <label style="cursor: pointer; margin-left: 1em;">
+            <input type="radio" name="sortOrder" value="asc"> 古い順
+        </label>
+    </div>
 
     <div th:if="${articles.isEmpty()}">
         <p>まだ記事が投稿されていません</p>
     </div>
 
-    <table th:unless="${articles.isEmpty()}">
+    <table th:unless="${articles.isEmpty()}" border="1" style="border-collapse: collapse;">
         <thead>
         <tr>
-            <th style="padding: 5px;">タイトル</th>
-            <th style="padding: 5px;">投稿者</th>
-            <th style="padding: 5px;">投稿日時</th>
-            <th style="padding: 5px;">操作</th>
+            <th scope="col">画像</th>
+            <th scope="col">タイトル</th>
+            <th scope="col">投稿者</th>
+            <th scope="col">投稿日時</th>
+            <th scope="col">操作</th>
         </tr>
         </thead>
-        <tbody>
-        <tr th:each="article: ${articles}">
-            <td style="padding: 5px;" th:text="${article.title}"></td>
-            <td style="padding: 5px;" th:text="${article.user.name}"></td>
-            <td style="padding: 5px;" th:text="${#temporals.format(article.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
-            <td style="padding: 5px;">
+        <tbody id="article-tbody">
+        <tr th:each="article: ${articles}" th:attr="data-created-at=${article.createdAt}">
+            <td>
+                <img th:if="${article.imagePath}" th:src="@{/images/{filename}(filename=${article.imagePath})}" alt="記事の画像" style="max-width: 100px; height: auto;">
+            </td>
+            <td th:text="${article.title}"></td>
+            <td th:text="${article.user.name}"></td>
+            <td th:text="${#temporals.format(article.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
+            <td>
                 <a th:href="@{/articles/{id}(id=${article.id})}">詳細</a>
-                <span th:if="${#authentication.name == article.user.name or #authorization.expression('hasRole(''ADMIN'')')}">
-                        | <a th:href="@{/articles/edit/{id}(id=${article.id})}">編集</a>
-                        | <a th:href="@{/articles/delete/{id}(id=${article.id})}">削除</a>
-                </span>
+                <div th:if="${#authentication.principal != null and (#authentication.name == article.user.name or #authorization.expression('hasRole(''ADMIN'')'))}">
+                            | <a th:href="@{/articles/edit/{id}(id=${article.id})}">編集</a>
+                            |
+                            <form th:action="@{/articles/delete/{id}(id=${article.id})}" method="post" style="display: inline;"
+                                  onsubmit="return confirm('本当にこの記事を削除しますか？');">
+                                <button type="submit" style="background: none; border: none; color: #007bff; cursor: pointer; padding: 0; text-decoration: underline;">削除</button>
+                            </form>
+                </div>
             </td>
         </tr>
         </tbody>
     </table>
 </div>
+<script th:src="@{/js/home.js}"></script>
 </body>
 </html>
 
