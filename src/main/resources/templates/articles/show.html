@@ -1,10 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${article.title} + ' - 記事詳細'"></title>
 </head>
 <body>
+<main id="article-details" th:attr="data-article-id=${article.id}">
+    <h2 th:text="${article.title}">記事タイトル</h2>
+    <p>
+        投稿者: <span th:text="${article.user.name}">投稿者名</span><br>
+        更新日時: <span th:text="${#temporals.format(article.updatedAt, 'yyyy/MM/dd HH:mm')}"></span>
+    </p>
+    <hr>
 
+    <div th:utext="${#strings.replace(article.content, '\n', '<br />')}"></div>
+    <hr>
+    <a th:href="@{/home}">記事一覧へ戻る</a>
+</main>
+
+<section>
+    <h3>コメント</h3>
+    <ul id="commentList">
+        <!-- JavaScriptによってここに動的に挿入 -->
+    </ul>
+
+    <div sec:authorize="isAuthenticated()">
+        <h4>コメントを投稿する</h4>
+        <form id="commentForm">
+            <div>
+                <label for="content">コメント:</label>
+                <textarea id="content" rows="4" required placeholder="コメントを入力..."></textarea>
+            </div>
+            <p id="commentError" style="color: red;"></p>
+            <button type="submit">投稿する</button>
+        </form>
+    </div>
+    <div sec:authorize="isAnonymous()">
+        <p><a th:href="@{/login}">ログイン</a>してコメントを投稿する</p>
+    </div>
+</section>
+<script th:src="@{/js/show.js}" defer></script>
 </body>
 </html>
+

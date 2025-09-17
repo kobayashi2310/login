@@ -15,14 +15,12 @@
         <tr>
             <th scope="row">ID</th>
             <th scope="row">氏名</th>
-            <th scope="row">ロール</th>
         </tr>
     </thead>
     <tbody th:each="user: ${users}">
         <tr>
             <th th:text="${user.id}" scope="col"></th>
             <td th:text="${user.name}"></td>
-            <td th:text="${user.role}"></td>
             <td>
                 <form th:action="@{/admin/delete/{id}(id=${user.id})}" method="post">
                     <button type="submit" onclick="return confirm('ユーザを削除しますか?')">削除</button>

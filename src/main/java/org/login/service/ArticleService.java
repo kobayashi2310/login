@@ -1,10 +1,13 @@
 package org.login.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.login.model.Article;
 import org.login.model.Comment;
 import org.login.model.User;
 import org.login.model.dto.form.ArticleFormDTO;
+import org.login.model.dto.form.CommentDto;
+import org.login.model.dto.form.CommentFormDTO;
 import org.login.repository.ArticleRepository;
 import org.login.repository.CommentRepository;
 import org.login.repository.UserRepository;
@@ -16,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
@@ -52,6 +56,38 @@ public class ArticleService {
 
         articleRepository.save(article);
 
+    }
+
+    public CommentDto createComment(
+            CommentFormDTO commentForm,
+            Long articleId
+    ) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+
+        User currentUser = userRepository.findByName(currentUserName)
+                .orElseThrow(() -> new RuntimeException("User Not Found:" + currentUserName));
+
+        Article article = findById(articleId);
+
+        Comment comment = new Comment();
+        comment.setContent(commentForm.getContent());
+        comment.setUser(currentUser);
+        comment.setArticle(article);
+
+        Comment savedComment = commentRepository.save(comment);
+
+        return CommentDto.fromEntity(savedComment);
+
+    }
+
+    @Transactional
+    public List<CommentDto> findCommentDtosByArticleId(Long articleId) {
+        return commentRepository.findByArticleIdOrderByCreatedAtDesc(articleId)
+                .stream()
+                .map(CommentDto::fromEntity)
+                .toList();
     }
 
 }

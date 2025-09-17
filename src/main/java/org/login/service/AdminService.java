@@ -20,7 +20,7 @@ public class AdminService {
         List<User> users = userRepository.findByRole(User.Role.USER);
 
         return users.stream()
-                .map(user -> new UserDTO(user.getId(), user.getName(), user.getRole()))
+                .map(user -> new UserDTO(user.getId(), user.getName()))
                 .toList();
 
     }

@@ -21,21 +21,13 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
-    @GetMapping("{id}")
+    @GetMapping({"/{id}"})
     public String showArticle(
             @PathVariable("id") Long id,
-            Model model)
-    {
-
+            Model model
+    ) {
         Article article = articleService.findById(id);
-
-        List<Comment> comments =
-                articleService.findByArticleIdOrderByCreatedAtDesc(id);
-
         model.addAttribute("article", article);
-        model.addAttribute("comments", comments);
-        model.addAttribute("commentForm", new CommentFormDTO());
-
         return "articles/show";
     }
 
