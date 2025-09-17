@@ -1,7 +1,6 @@
 package org.login.controller.rest;
 
 import lombok.RequiredArgsConstructor;
-import org.login.model.Comment;
 import org.login.model.dto.form.CommentDto;
 import org.login.model.dto.form.CommentFormDTO;
 import org.login.service.ArticleService;
@@ -24,7 +23,7 @@ public class CommentApiController {
     public ResponseEntity<List<CommentDto>> getComments(
             @PathVariable("articledId") Long articleId
     ) {
-        List<CommentDto> comments = articleService.findCommentDtosByArticleId(articleId);
+        List<CommentDto> comments = articleService.findCommentDosByArticleId(articleId);
         return ResponseEntity.ok(comments);
     }
 

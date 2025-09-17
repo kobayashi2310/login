@@ -7,7 +7,12 @@
 </head>
 <body>
 <main id="article-details" th:attr="data-article-id=${article.id}">
-    <h2 th:text="${article.title}">記事タイトル</h2>
+    <h2 th:text="${article.title}"></h2>
+
+    <div th:if="${article.imagePath}" style="max-width: 600px; margin: 1em auto;">
+        <img th:src="@{/images/{filename}(filename=${article.imagePath})}" alt="記事の画像" style="width: 100%; height: auto; display: block; border-radius: 8px;">
+    </div>
+
     <p>
         投稿者: <span th:text="${article.user.name}">投稿者名</span><br>
         更新日時: <span th:text="${#temporals.format(article.updatedAt, 'yyyy/MM/dd HH:mm')}"></span>

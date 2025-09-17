@@ -45,13 +45,12 @@
                 <span th:if="${#authentication.name == article.user.name or #authorization.expression('hasRole(''ADMIN'')')}">
                         | <a th:href="@{/articles/edit/{id}(id=${article.id})}">編集</a>
                         | <a th:href="@{/articles/delete/{id}(id=${article.id})}">削除</a>
-                    </span>
+                </span>
             </td>
         </tr>
         </tbody>
     </table>
 </div>
-
 </body>
 </html>
 

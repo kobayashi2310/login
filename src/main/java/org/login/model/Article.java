@@ -27,6 +27,9 @@ public class Article {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Column(name = "image_path")
+    private String imagePath;
+
     // updatable = false でデータを固定化する
     // CreationTimestamp で エンティティが 初めて保存されるとき（INSERT 時）に、
     // 自動的に現在時刻を設定してくれるアノテーション

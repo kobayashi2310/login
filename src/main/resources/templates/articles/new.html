@@ -8,7 +8,10 @@
 <body>
 <main>
     <h2>新規記事投稿</h2>
-    <form th:action="@{/articles/new}" method="post" th:object="${articleForm}">
+    <form th:action="@{/articles/new}"
+          method="post" th:object="${articleForm}"
+          enctype="multipart/form-data"
+    >
         <div>
             <label for="title">タイトル:</label>
             <div>
@@ -23,6 +26,11 @@
                 <textarea id="content" th:field="*{content}" required></textarea>
                 <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
             </div>
+        </div>
+        <br/>
+        <div>
+            <label for="imageFile">画像:</label>
+            <input type="file" id="imageFile" name="imageFile" accept="image/*">
         </div>
         <br/>
         <div>

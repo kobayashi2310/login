@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,16 +44,16 @@ public class ArticleController {
     public String createArticle(
             @Validated @ModelAttribute ArticleFormDTO articleForm,
             BindingResult bindingResult,
-            Model model
+            @RequestParam("imageFile") MultipartFile imageFile
     ) {
 
         if (bindingResult.hasErrors()) {
             return "articles/new";
         }
 
-        articleService.createArticle(articleForm);
-
+        articleService.createArticle(articleForm, imageFile);
         return "redirect:/home";
+
     }
 
 }
